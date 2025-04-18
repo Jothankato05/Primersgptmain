@@ -1,14 +1,12 @@
 {
-  "version": 2,
   "framework": "nextjs",
-  "outputDirectory": ".next",
-  "buildCommand": "npm install && npm run build",
-  "installCommand": "npm install",
+  "outputDirectory": "client/.next",
+  "buildCommand": "cd client && npm install && npm run build",
+  "installCommand": "cd client && npm install",
   "rewrites": [
     {
       "source": "/api/:path*",
       "destination": "/api/:path*"
     }
-  ],
-  "rootDirectory": "client"
+  ]
 }
