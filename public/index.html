@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PrimerGPT | Next-Generation GPT-Powered Solutions</title>
+  <link rel="stylesheet" href="styles-redesign.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>PrimerGPT</h1>
+      <p>Your forward-thinking solution for GPT-powered innovations.</p>
+    </header>
+    
+    <main>
+      <div id="authArea">
+        <div id="signupForm" class="auth-form">
+          <h2>Sign Up</h2>
+          <input type="text" id="signupUsername" placeholder="Username" />
+          <input type="password" id="signupPassword" placeholder="Password" />
+          <button id="signupButton">Sign Up</button>
+          <p>Already have an account? <a href="#" id="showLogin">Log In</a></p>
+          <p class="error-message" id="signupError"></p>
+        </div>
+        <div id="loginForm" class="auth-form" style="display:none;">
+          <h2>Log In</h2>
+          <input type="text" id="loginUsername" placeholder="Username" />
+          <input type="password" id="loginPassword" placeholder="Password" />
+          <button id="loginButton">Log In</button>
+          <p>Don't have an account? <a href="#" id="showSignup">Sign Up</a></p>
+          <p class="error-message" id="loginError"></p>
+        </div>
+      </div>
+      <div id="appArea" style="display:none;">
+        <button id="logoutButton">Log Out</button>
+        <div class="chat-box" id="chatBox">
+          <!-- Generated conversation logs will appear here -->
+        </div>
+        <div class="input-area">
+          <textarea id="promptInput" placeholder="Enter your prompt..."></textarea>
+          <button id="sendButton">Send</button>
+        </div>
+      </div>
+    </main>
+    
+    <footer>
+      <p>&copy; 2025 PrimerGPT. All rights reserved.</p>
+    </footer>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

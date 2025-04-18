@@ -1,0 +1,70 @@
+{
+  "name": "PrimerGPT Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "primergpt",
+        "httpMethod": "POST",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input data is in $input.item\nconst response = await $openai.createChatCompletion({\n  model: 'gpt-3.5-turbo',\n  messages: [\n    {\n      role: 'system',\n      content: 'You are PrimerGPT, a helpful AI assistant. Respond in a friendly and informative way.'\n    },\n    {\n      role: 'user',\n      content: $input.item.json.content\n    }\n  ]\n});\n\nreturn {\n  json: {\n    type: 'assistant',\n    content: response.choices[0].message.content,\n    id: Date.now(),\n    timestamp: new Date().toISOString()\n  }\n};"
+      },
+      "name": "Process Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{$json}}",
+        "options": {}
+      },
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
