@@ -1,24 +1,27 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { PlusIcon, MicIcon, ArrowUpIcon } from "lucide-react";
+import { PlusIcon, MicIcon, ArrowUpIcon, ClockIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
-const ChatInput = ({ onSendMessage }) => {
+const ChatInput = ({ onSendMessage, isWaitingForResponse = false }) => {
   const [message, setMessage] = useState("");
   const { isDark } = useTheme();
   const inputRef = useRef(null);
   const [isMobile, setIsMobile] = useState(false);
 
   const handleSend = useCallback(() => {
-    if (message.trim()) {
+    if (message.trim() && !isWaitingForResponse) {
       onSendMessage(message);
       setMessage("");
     }
-  }, [message, onSendMessage]);
+  }, [message, onSendMessage, isWaitingForResponse]);
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      // Only process Enter key if we're not waiting for a response
+      if (!isWaitingForResponse) {
+        handleSend();
+      }
     }
   };
 
@@ -48,7 +51,8 @@ const ChatInput = ({ onSendMessage }) => {
         e.metaKey ||
         e.ctrlKey ||
         e.altKey ||
-        isMobile // Don't auto-focus on mobile
+        isMobile || // Don't auto-focus on mobile
+        isWaitingForResponse // Don't focus if waiting for a response
       ) {
         return;
       }
@@ -66,7 +70,7 @@ const ChatInput = ({ onSendMessage }) => {
     return () => {
       window.removeEventListener("keydown", handleGlobalKeyDown);
     };
-  }, [isMobile]); // Added isMobile as dependency
+  }, [isMobile, isWaitingForResponse]); // Added isWaitingForResponse as dependency
 
   return (
     <motion.div
@@ -86,12 +90,21 @@ const ChatInput = ({ onSendMessage }) => {
       {!isMobile && (
         <motion.button
           whileHover={{
-            scale: 1.1,
+            scale: isWaitingForResponse ? 1 : 1.1,
           }}
           whileTap={{
-            scale: 0.95,
+            scale: isWaitingForResponse ? 1 : 0.95,
           }}
-          className={`p-2 rounded-full transition-colors ${isDark ? "hover:bg-[#3a3a3a] text-gray-400" : "hover:bg-gray-100 text-gray-600"} hidden sm:block`}
+          disabled={isWaitingForResponse}
+          className={`p-2 rounded-full transition-colors ${
+            isDark
+              ? isWaitingForResponse
+                ? "hover:bg-[#2a2a2a] text-gray-600 cursor-not-allowed"
+                : "hover:bg-[#3a3a3a] text-gray-400"
+              : isWaitingForResponse
+                ? "hover:bg-[#D6EAEA] text-gray-400 cursor-not-allowed"
+                : "hover:bg-gray-100 text-gray-600"
+          } hidden sm:block`}
         >
           <PlusIcon size={20} />
         </motion.button>
@@ -102,34 +115,67 @@ const ChatInput = ({ onSendMessage }) => {
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         onKeyDown={handleKeyPress}
-        placeholder={isMobile ? "Message" : "Ask anything"}
-        className={`bg-transparent flex-1 px-3 py-2 outline-none text-sm sm:text-base ${isDark ? "text-white placeholder-gray-400" : "text-gray-900 placeholder-gray-500"}`}
+        disabled={isWaitingForResponse}
+        placeholder={
+          isWaitingForResponse
+            ? "Waiting for response..."
+            : isMobile
+              ? "Message"
+              : "Ask anything"
+        }
+        className={`bg-transparent flex-1 px-3 py-2 outline-none text-sm sm:text-base ${
+          isDark
+            ? `${isWaitingForResponse ? "text-gray-500 cursor-not-allowed" : "text-white"} ${isWaitingForResponse ? "placeholder-gray-500" : "placeholder-gray-400"}`
+            : `${isWaitingForResponse ? "text-gray-400 cursor-not-allowed" : "text-gray-900"} ${isWaitingForResponse ? "placeholder-gray-400" : "placeholder-gray-500"}`
+        }`}
       />
       <div className="flex items-center space-x-1">
         {!isMobile && (
           <motion.button
             whileHover={{
-              scale: 1.1,
+              scale: isWaitingForResponse ? 1 : 1.1,
             }}
             whileTap={{
-              scale: 0.95,
+              scale: isWaitingForResponse ? 1 : 0.95,
             }}
-            className={`p-2 rounded-full transition-colors ${isDark ? "hover:bg-[#3a3a3a] text-gray-400" : "hover:bg-gray-100 text-gray-600"} hidden sm:block`}
+            disabled={isWaitingForResponse}
+            className={`p-2 rounded-full transition-colors ${
+              isDark
+                ? isWaitingForResponse
+                  ? "hover:bg-[#2a2a2a] text-gray-600 cursor-not-allowed"
+                  : "hover:bg-[#3a3a3a] text-gray-400"
+                : isWaitingForResponse
+                  ? "hover:bg-[#D6EAEA] text-gray-400 cursor-not-allowed"
+                  : "hover:bg-gray-100 text-gray-600"
+            } hidden sm:block`}
           >
             <MicIcon size={20} />
           </motion.button>
         )}
         <motion.button
           whileHover={{
-            scale: 1.1,
+            scale: isWaitingForResponse ? 1 : 1.1,
           }}
           whileTap={{
-            scale: 0.95,
+            scale: isWaitingForResponse ? 1 : 0.95,
           }}
           onClick={handleSend}
-          className={`p-2 rounded-full transition-colors ${isDark ? "bg-[#3a3a3a] hover:bg-[#4a4a4a] text-gray-300" : "bg-gray-100 hover:bg-gray-200 text-gray-700"}`}
+          disabled={isWaitingForResponse}
+          className={`p-2 rounded-full transition-colors ${
+            isDark
+              ? isWaitingForResponse
+                ? "bg-[#3a3a3a] text-gray-500 cursor-not-allowed"
+                : "bg-[#3a3a3a] hover:bg-[#4a4a4a] text-gray-300"
+              : isWaitingForResponse
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+          }`}
         >
-          <ArrowUpIcon size={isMobile ? 16 : 20} />
+          {isWaitingForResponse ? (
+            <ClockIcon size={isMobile ? 16 : 20} className="animate-pulse" />
+          ) : (
+            <ArrowUpIcon size={isMobile ? 16 : 20} />
+          )}
         </motion.button>
       </div>
     </motion.div>

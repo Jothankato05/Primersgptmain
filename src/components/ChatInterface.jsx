@@ -7,6 +7,7 @@ const ChatInterface = () => {
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const [showHeader, setShowHeader] = useState(true);
+  const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
   const messagesEndRef = useRef(null);
   const generateSessionId = () => {
     return Math.floor(Math.random() * 1000000000000).toString();
@@ -33,7 +34,11 @@ const ChatInterface = () => {
   }, [messages]);
 
   const handleSendMessage = async (message) => {
-    if (!message.trim()) return;
+    if (!message.trim() || isWaitingForResponse) return;
+
+    // Set waiting for response state to prevent multiple messages
+    setIsWaitingForResponse(true);
+
     // Add user message
     setMessages((prev) => [
       ...prev,
@@ -80,6 +85,9 @@ const ChatInterface = () => {
           sender: "bot",
         },
       ]);
+
+      // Allow user to send another message
+      setIsWaitingForResponse(false);
     } catch (error) {
       console.error("Error:", error);
       // Handle error - still need to show something to the user
@@ -92,6 +100,9 @@ const ChatInterface = () => {
           sender: "bot",
         },
       ]);
+
+      // Allow user to send another message
+      setIsWaitingForResponse(false);
     }
   };
   return (
@@ -177,7 +188,10 @@ const ChatInterface = () => {
 
         <div className="w-full backdrop-blur-xl px-3 sm:px-10 mx-auto fixed bottom-0 left-0 right-0 flex justify-center pb-safe">
           <div className="max-w-5xl w-full pt-1 pb-2 sm:pb-4">
-            <ChatInput onSendMessage={handleSendMessage} />
+            <ChatInput
+              onSendMessage={handleSendMessage}
+              isWaitingForResponse={isWaitingForResponse}
+            />
           </div>
         </div>
       </div>
