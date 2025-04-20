@@ -1,20 +1,49 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { PlusIcon, MicIcon, ArrowUpIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
 const ChatInput = ({ onSendMessage }) => {
   const [message, setMessage] = useState("");
   const { isDark } = useTheme();
-  const handleSend = () => {
-    onSendMessage(message);
-    setMessage("");
-  };
+  const inputRef = useRef(null);
+
+  const handleSend = useCallback(() => {
+    if (message.trim()) {
+      onSendMessage(message);
+      setMessage("");
+    }
+  }, [message, onSendMessage]);
+
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
+
+  // Simplified effect to just focus the input when a key is pressed
+  useEffect(() => {
+    const handleGlobalKeyDown = (e) => {
+      // Ignore if user is already typing in an input or using modifier keys
+      if (e.target.tagName === "INPUT" || e.metaKey || e.ctrlKey || e.altKey) {
+        return;
+      }
+
+      // Only focus for printable characters
+      if (e.key.length === 1) {
+        inputRef.current.focus();
+      }
+    };
+
+    // Add the global event listener
+    window.addEventListener("keydown", handleGlobalKeyDown);
+
+    // Cleanup on unmount
+    return () => {
+      window.removeEventListener("keydown", handleGlobalKeyDown);
+    };
+  }, []); // No dependencies needed as we're just focusing
+
   return (
     <motion.div
       initial={{
@@ -28,7 +57,7 @@ const ChatInput = ({ onSendMessage }) => {
       transition={{
         duration: 0.3,
       }}
-      className={`rounded-lg p-2 flex items-center transition-colors duration-200 ${isDark ? "bg-[#2a2a2a]" : "bg-white shadow-md"}`}
+      className={`rounded-lg p-2 flex items-center transition-colors duration-200 ${isDark ? "bg-[#2a2a2a]" : "bg-[#D6EAEA] shadow-md"}`}
     >
       <motion.button
         whileHover={{
@@ -42,10 +71,11 @@ const ChatInput = ({ onSendMessage }) => {
         <PlusIcon size={20} />
       </motion.button>
       <input
+        ref={inputRef}
         type="text"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        onKeyPress={handleKeyPress}
+        onKeyDown={handleKeyPress}
         placeholder="Ask anything"
         className={`bg-transparent flex-1 px-3 py-2 outline-none ${isDark ? "text-white placeholder-gray-400" : "text-gray-900 placeholder-gray-500"}`}
       />

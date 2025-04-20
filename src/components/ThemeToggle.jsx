@@ -13,7 +13,7 @@ const ThemeToggle = () => {
         scale: 0.9,
       }}
       onClick={toggleTheme}
-      className={`p-2 cursor-pointer rounded-full ${isDark ? "bg-[#3A3B40] text-yellow-400" : "bg-gray-200 text-gray-800"} transition-colors duration-200`}
+      className={`p-2 cursor-pointer rounded-full ${isDark ? "bg-[#3A3B40] text-yellow-400" : "bg-[#D6EAEA] text-gray-800"} transition-colors duration-200`}
     >
       {isDark ? <SunIcon size={20} /> : <MoonIcon size={20} />}
     </motion.button>
