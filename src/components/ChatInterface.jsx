@@ -105,7 +105,7 @@ const ChatInterface = () => {
       transition={{
         duration: 0.5,
       }}
-      className="flex-1 flex flex-col items-center justify-between px-4 h-full"
+      className="flex-1 flex flex-col items-center justify-between px-2 sm:px-4 h-full"
     >
       <div className="flex flex-col h-full w-full relative">
         <AnimatePresence mode="wait">
@@ -140,9 +140,9 @@ const ChatInterface = () => {
         <motion.div
           className="w-full max-w-3xl mx-auto flex-1 overflow-y-auto scrollbar-hide pt-5 flex flex-col"
           style={{
-            height: "calc(100vh - 160px)",
+            height: "calc(100vh - 130px)",
             scrollbarWidth: "none",
-            paddingBottom: "80px", // Add padding to ensure messages don't hide behind input
+            paddingBottom: "100px", // Increased padding for mobile
           }}
           animate={{
             y: 0,
@@ -153,7 +153,7 @@ const ChatInterface = () => {
           }}
         >
           {messages.length > 0 ? (
-            <div className="space-y-4 bg-opacity-0">
+            <div className="space-y-4 bg-opacity-0 px-2 sm:px-0">
               <div className="hidden">{messages.length}</div>
               {messages.map((message) => (
                 <motion.div
@@ -166,7 +166,7 @@ const ChatInterface = () => {
                 </motion.div>
               ))}
               {isTyping && (
-                <div className="text-gray-400 text-sm">
+                <div className="text-gray-400 text-sm pl-2">
                   PrimersGPT is typing...
                 </div>
               )}
@@ -175,8 +175,8 @@ const ChatInterface = () => {
           ) : null}
         </motion.div>
 
-        <div className="w-full bg-[#07081F] px-10 mx-auto fixed bottom-0 left-0 right-0 flex justify-center">
-          <div className="max-w-5xl w-full pt-1 pb-4">
+        <div className="w-full backdrop-blur-xl px-3 sm:px-10 mx-auto fixed bottom-0 left-0 right-0 flex justify-center pb-safe">
+          <div className="max-w-5xl w-full pt-1 pb-2 sm:pb-4">
             <ChatInput onSendMessage={handleSendMessage} />
           </div>
         </div>
