@@ -3,6 +3,10 @@ import ChatInput from "./ChatInput";
 import ChatMessage from "./ChatMessage";
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "./Header";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+
 const ChatInterface = () => {
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
@@ -32,6 +36,78 @@ const ChatInterface = () => {
       setShowHeader(false);
     }
   }, [messages]);
+
+  // Function to render markdown
+  const renderMarkdown = (text) => {
+    return (
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeHighlight]}
+        components={{
+          a: ({ node, ...props }) => (
+            <a
+              {...props}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:underline"
+            />
+          ),
+          p: ({ node, ...props }) => <p {...props} className="mb-4" />,
+          h1: ({ node, ...props }) => (
+            <h1 {...props} className="text-2xl font-bold mb-4 mt-6" />
+          ),
+          h2: ({ node, ...props }) => (
+            <h2 {...props} className="text-xl font-bold mb-3 mt-5" />
+          ),
+          h3: ({ node, ...props }) => (
+            <h3 {...props} className="text-lg font-bold mb-2 mt-4" />
+          ),
+          ul: ({ node, ...props }) => (
+            <ul {...props} className="list-disc ml-5 mb-4" />
+          ),
+          ol: ({ node, ...props }) => (
+            <ol {...props} className="list-decimal ml-5 mb-4" />
+          ),
+          li: ({ node, ...props }) => <li {...props} className="mb-1" />,
+          code: ({ node, inline, ...props }) =>
+            inline ? (
+              <code
+                {...props}
+                className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded"
+              />
+            ) : (
+              <code
+                {...props}
+                className="block bg-gray-100 dark:bg-gray-800 p-3 rounded my-2 overflow-x-auto"
+              />
+            ),
+          blockquote: ({ node, ...props }) => (
+            <blockquote
+              {...props}
+              className="border-l-4 border-gray-300 pl-4 py-1 italic"
+            />
+          ),
+          table: ({ node, ...props }) => (
+            <table
+              {...props}
+              className="border-collapse table-auto w-full my-4"
+            />
+          ),
+          th: ({ node, ...props }) => (
+            <th
+              {...props}
+              className="border border-gray-300 px-4 py-2 bg-gray-100 dark:bg-gray-800"
+            />
+          ),
+          td: ({ node, ...props }) => (
+            <td {...props} className="border border-gray-300 px-4 py-2" />
+          ),
+        }}
+      >
+        {text}
+      </ReactMarkdown>
+    );
+  };
 
   const handleSendMessage = async (message) => {
     if (!message.trim() || isWaitingForResponse) return;
@@ -83,6 +159,7 @@ const ChatInterface = () => {
           id: Date.now() + 1,
           text: data.output || "I'm PrimersGPT, how can I assist you today?",
           sender: "bot",
+          isMarkdown: true, // Flag to indicate markdown content
         },
       ]);
 
@@ -173,7 +250,15 @@ const ChatInterface = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <ChatMessage text={message.text} sender={message.sender} />
+                  {message.isMarkdown && message.sender === "bot" ? (
+                    <div
+                      className={`p-3 rounded-lg ${message.sender === "user" ? "bg-blue-500 text-white self-end" : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 self-start"}`}
+                    >
+                      {renderMarkdown(message.text)}
+                    </div>
+                  ) : (
+                    <ChatMessage text={message.text} sender={message.sender} />
+                  )}
                 </motion.div>
               ))}
               {isTyping && (
